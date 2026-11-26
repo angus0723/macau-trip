@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="澳門行">
+<meta name="theme-color" content="#1d4fa0">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>澳門六天五夜</title>
+<style>
+/* VOICE everyday travel companion, calm and practical for a couple
+   IDEA a Macau boarding pass + azulejo tile, Senado-square yellow on Portuguese blue
+   PICTURE a line of six stops (the trip route) that doubles as day navigation
+   COLOUR azulejo blue ground band, white paper, Senado yellow accent, Taipa-houses mint
+   TYPE system PingFang TC / Noto Sans TC, heavy titles, tabular times
+   LAYOUT blue band: title + boarding passes, route strip; then day schedule with hanging times; phone stacks */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0c1630);--ink:light-dark(#13203b,#eef2fa);--mute:light-dark(#5a6680,#a9b4cc);--line:light-dark(#dde3ee,#243458);--card:light-dark(#f4f7fc,#14214180);--blue:#1d4fa0;--deep:light-dark(#173f82,#0a1a3d);--yel:#f2b53a;--mint:#9ed2bb;--red:light-dark(#c0392b,#ff8a7a)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
+.band{padding-block:clamp(22px,4vw,48px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1100px;margin:0 auto}
+.hero{background:var(--deep);color:#fff;padding-top:max(22px,env(safe-area-inset-top,0px));background-image:radial-gradient(circle at 12px 12px,#ffffff14 5px,transparent 6px),radial-gradient(circle at 0 0,#ffffff0d 9px,transparent 10px);background-size:24px 24px}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02em;margin:0 0 6px;font-weight:800;text-wrap:balance}
+h2{font-size:clamp(24px,3.4vw,32px);line-height:1.1;margin:0 0 14px;font-weight:800}
+h3{font-size:18px;margin:0 0 6px}
+.sub{color:#cfdaf0;margin:0}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:end}
+.pill{background:var(--yel);color:#1b1300;font-weight:700;border-radius:99px;padding:6px 14px;white-space:nowrap}
+.passes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.pass{background:#fff;color:#13203b;border-radius:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;overflow:hidden}
+.pass .l{padding:12px 14px}
+.pass .r{background:var(--yel);padding:12px 14px;display:grid;place-content:center;text-align:center;border-left:2px dashed #13203b55;font-weight:800}
+.pass .ap{font-size:clamp(24px,4vw,30px);font-weight:800;letter-spacing:.02em}
+.pass small{color:#5a6680;display:block;font-size:13px}
+.route{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:22px;position:relative}
+.route:before{content:"";position:absolute;left:8%;right:8%;top:22px;height:4px;background:#ffffff40;border-radius:4px}
+.stop{background:none;border:0;color:#fff;font:inherit;cursor:pointer;padding:0 2px 6px;display:grid;justify-items:center;text-align:center;gap:2px;min-height:44px;position:relative}
+.dot{width:44px;height:44px;border-radius:50%;background:#2a5fb8;border:3px solid #fff;display:grid;place-items:center;font-weight:800}
+.stop.x .dot{background:var(--mint);color:#0d3324}
+.stop.on .dot{background:var(--yel);color:#1b1300;transform:scale(1.12)}
+.stop b{font-size:14px}.stop span{font-size:13px;color:#cfdaf0}
+.stop:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+.hotel{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:#cfdaf0;font-size:14px}
+.hotel input{font:16px inherit;padding:8px 10px;border-radius:10px;border:1px solid #ffffff55;background:#ffffff14;color:#fff;width:min(320px,100%)}
+.day-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;justify-content:space-between}
+.note{background:var(--card);border-left:4px solid var(--yel);padding:10px 14px;border-radius:8px;margin:8px 0;font-size:15px}
+.note.warn{border-color:var(--red)}
+.tl{list-style:none;margin:16px 0 0;padding:0}
+.tl li{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.tl time{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--blue);white-space:nowrap}
+:root[data-theme=dark] .tl time{color:var(--yel)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .tl time{color:var(--yel)}}
+.tl p{margin:2px 0 0;color:var(--mute);font-size:15px}
+.tl a,.lnk{color:var(--blue);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
+:root[data-theme=dark] .tl a{color:var(--mint)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .tl a{color:var(--mint)}}
+.alt{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.alt summary{font-weight:700;cursor:pointer;min-height:32px}
+.nav{display:flex;gap:10px;margin-top:18px}
+.btn{font:inherit;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;min-height:44px;cursor:pointer}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.ck{list-style:none;padding:0;margin:0}
+.ck label{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+.ck input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--blue)}
+.ck .done{text-decoration:line-through;color:var(--mute)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:9px 8px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:14px;color:var(--mute);font-weight:600}
+.nw{white-space:nowrap}
+.alt-band{background:var(--card)}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:18px}
+.info div{border-top:4px solid var(--blue);padding-top:10px}
+.info p{margin:4px 0;font-size:15px}
+footer{color:var(--mute);font-size:13px}
+@media(max-width:700px){.grid2{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.passes{grid-template-columns:minmax(0,1fr)}.stop span{display:none}.dot{width:38px;height:38px}.route:before{top:19px}.tl li{grid-template-columns:3.6em minmax(0,1fr);gap:10px}.tl time{font-size:17px}table{font-size:13px}th,td{padding:6px 4px}}
+@media(prefers-reduced-motion:no-preference){.dot{transition:transform .25s,background .25s}}
+</style>
+</head>
+<body>
+<header class="hero band">
+ <div class="wrap">
+  <div class="top">
+   <div><h1>澳門六天五夜</h1><p class="sub">2026/12/6（日）– 12/11（五）・五晚都住澳門・2 天跨境一日遊</p></div>
+   <span class="pill" id="cd">倒數中</span>
+  </div>
+  <div class="passes">
+   <div class="pass"><div class="l"><small>去程 NX611・12/6（日）</small><div class="ap">TPE → MFM</div><small>14:40 起飛・16:35 抵達澳門</small></div><div class="r">NX611<small>已出票</small></div></div>
+   <div class="pass"><div class="l"><small>回程 NX612・12/11（五）</small><div class="ap">MFM → TPE</div><small>12:00 起飛・13:40 抵達桃園</small></div><div class="r">NX612<small>09:30 到機場</small></div></div>
+  </div>
+  <nav class="route" id="route" aria-label="每日行程"></nav>
+  <div class="hotel"><label for="ht">住宿飯店</label><input id="ht" placeholder="輸入飯店名稱（例如：路氹某度假村）"><span id="htmsg"></span></div>
+ </div>
+</header>
+
+<main>
+ <section class="band"><div class="wrap" id="day"></div></section>
+
+ <section class="band alt-band" id="checklist"><div class="wrap grid2">
+  <div><h2>出發前清單</h2><ul class="ck" id="ck"></ul><p class="nav"><button class="btn" id="ckreset">清除勾選</button></p></div>
+  <div><h2>交通速查</h2><div class="scroll"><table><thead><tr><th>路段</th><th>方式</th><th class="nw">時間</th><th>備註</th></tr></thead><tbody id="tr"></tbody></table></div>
+  <p class="note">票價與班次為 2026 年公開資訊，出發前一週再到官方網站確認一次。</p></div>
+ </div></section>
+
+ <section class="band"><div class="wrap">
+  <h2>證件、支付與小提醒</h2>
+  <div class="info" id="info"></div>
+ </div></section>
+
+ <section class="band alt-band" id="install"><div class="wrap">
+  <h2>放到 iPhone 主畫面</h2>
+  <ol>
+   <li>用 <b>Safari</b> 開啟這個頁面的網址。</li>
+   <li>點下方的「分享」按鈕 → 選「<b>加入主畫面</b>」。</li>
+   <li>名稱保留「澳門行」→ 新增。之後從主畫面點開即可全螢幕使用。</li>
+  </ol>
+  <p class="note">勾選清單和飯店名稱只存在這支手機的瀏覽器裡。跨境時網路可能不穩，出發前先在飯店 Wi‑Fi 下打開一次。</p>
+ </div></section>
+
+ <footer class="band"><div class="wrap">資料查證日期：2026/11/26。餐廳、景點營業時間與票價可能變動，請以現場與官方公告為準。</div></footer>
+</main>
+
+<script>
+{
+const G=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const A=q=>'https://uri.amap.com/search?keyword='+encodeURIComponent(q)+'&city=珠海';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAYS=[
+{d:'12/6',w:'日',place:'抵達',title:'抵達・氹仔舊城夜遊',iso:'2026-12-06',notes:[['','早上是 2026 澳門國際馬拉松，封路只在上午，不影響下午抵達。']],
+ tl:[['14:40','桃園起飛 NX611','建議 12:40 前到桃園報到。'],
+ ['16:35','抵達澳門國際機場','台灣護照免簽入境。機場先換少量澳門幣（MOP），港幣在澳門也通用（1:1，找零給 MOP）。'],
+ ['17:30','前往飯店','路氹各大度假村有免費接駁巴士（俗稱發財車）；計程車約 10–15 分鐘；也可搭輕軌氹仔線。'],
+ ['18:30','Check-in、放行李','向櫃台索取飯店接駁時刻表，後面幾天會一直用到。'],
+ ['19:15','氹仔舊城區・官也街晚餐','葡國菜（例如 Antonio 安東尼奧）或水蟹粥；飯後吃莫義記雪糕。','氹仔官也街'],
+ ['21:00','嘉模聖母堂一帶散步','教堂與龍環葡韻在夜燈下很好拍，週四白天會再回來入館。','嘉模聖母堂 氹仔']]},
+{d:'12/7',w:'一',place:'澳門半島',title:'世界遺產漫步＋光影節夜景',iso:'2026-12-07',notes:[['warn','週一休館：澳門博物館（大炮台內）、盧家大屋、龍環葡韻。今天以戶外與教堂為主。'],['','2026 澳門國際光影節 12/5–2027/1/10，每晚 18:00–22:00 免費。']],
+ tl:[['09:00','早餐：南屏雅敘','議事亭旁的老茶餐廳，豬扒包、奶茶。','南屏雅敘 澳門'],
+ ['09:45','議事亭前地 → 仁慈堂 → 玫瑰堂','早上人少，碎石波浪路最好拍。','議事亭前地'],
+ ['10:45','大三巴牌坊・哪吒廟・大炮台','炮台戶外可上去看全景（博物館週一休）。','大三巴牌坊'],
+ ['12:30','午餐：福隆新街','祥記麵家蝦子撈麵，或附近竹昇麵。','福隆新街 澳門'],
+ ['13:45','戀愛巷 → 瘋堂斜巷・望德堂區','黃白葡式街屋、文創小店，散步約 1 小時。','瘋堂斜巷'],
+ ['15:30','東望洋炮台・燈塔','計程車上山，看完沿步道走下來。','東望洋燈塔'],
+ ['17:00','新馬路買手信／回飯店休息','腳力不夠就先回飯店，晚上再出門。'],
+ ['18:30','晚餐：新口岸或南灣一帶','光影節期間這區有市集與餐車。'],
+ ['19:30','光影節：科學館 3D 光雕','每 15 分鐘一場、約 8 分鐘，末場 21:45；對開海面有大型水上裝置。','澳門科學館'],
+ ['20:30','媽閣塘「浮光水舞」雷射秀＋南灣湖裝置','當週的機票票根可在現場換 10 澳門元現金券（醺光派對使用）。','媽閣塘 澳門']]},
+{d:'12/8',w:'二',place:'香港',x:1,title:'跨境 A：香港大嶼山',iso:'2026-12-08',notes:[['warn','12/8 是澳門公眾假期，口岸人可能較多，建議 8 點前出門。'],['','昂坪纜車遇強風或雷暴會暫停：前一晚看昂坪360官網，天候不佳就改走下方「市區版」。']],
+ tl:[['07:45','前往港珠澳大橋澳門口岸','搭飯店接駁或計程車。帶護照＋港簽通知書（或台胞證）。','港珠澳大橋澳門口岸'],
+ ['08:15','搭「金巴」過橋','24 小時營運，日間單程約 HK$65，車程約 40–50 分鐘。'],
+ ['09:15','香港口岸 → 東涌','嶼巴 B6，約 15 分鐘、HK$9.8；可用感應式信用卡或八達通。','東涌纜車站'],
+ ['10:00','昂坪360 纜車（約 25 分鐘）','建議先上官網預購；水晶車廂可看腳下山海與機場。','昂坪360'],
+ ['11:00','天壇大佛・寶蓮寺','大佛 268 級台階；午餐吃寶蓮寺齋堂素齋。','天壇大佛'],
+ ['13:30','巴士 21 號往大澳（約 20 分鐘）','昂坪巴士總站上車。','大澳'],
+ ['14:00','大澳漁村','棚屋、小船出海（白海豚看運氣）、蝦醬、炭烤魷魚、雞蛋仔。'],
+ ['16:30','巴士 11 號回東涌（約 50 分鐘）',''],
+ ['17:30','東薈城逛街・晚餐','東涌站旁的 outlet 商場。','東薈城'],
+ ['19:00','B6 → 香港口岸 → 金巴回澳門','約 20:30 回到飯店。']],
+ alt:['市區版（下雨或喜歡都會）','氹仔客運碼頭搭金光飛航到上環（約 1 小時，平日標準艙約 HK$192）→ 中環、天星小輪 → 尖沙咀海濱看維港夜景。回程搭船（末班約 22:30），或港鐵到東涌轉 B6 接金巴（24 小時）。']},
+{d:'12/9',w:'三',place:'珠海',x:1,title:'跨境 B：珠海北山＋情侶路',iso:'2026-12-09',notes:[['warn','必帶有效台胞證。大陸用支付寶／微信付款、高德地圖導航、滴滴叫車；Google、LINE 需靠漫遊或 eSIM。']],
+ tl:[['08:30','前往關閘／拱北口岸','飯店接駁到關閘或搭計程車（路氹約 20 分鐘）。','拱北口岸'],
+ ['09:15','步行過關','非假日通常 30 分鐘內。'],
+ ['10:00','北山村（北山大院）','滴滴約 15 分鐘。嶺南古村改造的文創聚落：咖啡、選物店、北山會館、北山戲院。','北山大院',1],
+ ['12:30','北山村內午餐','巷弄裡選一家坐下來慢慢吃。'],
+ ['14:00','情侶路海岸：珠海漁女 → 野狸島','叫車串點，沿海步道散步。','珠海漁女',1],
+ ['16:45','日月貝（珠海大劇院）看夕陽','12 月日落約 17:45，貝殼造型建築亮燈很美。','珠海大劇院',1],
+ ['18:30','灣仔海鮮街晚餐','市場挑海鮮，交給樓上餐廳代客烹煮，先問清楚加工費。','灣仔海鮮街',1],
+ ['20:30','拱北口岸回澳門','約 21:30 回到飯店。']],
+ alt:['順德美食版（愛吃的話）','過關後到旁邊的珠海站搭廣珠城際到順德站（約 40 分鐘）。白天逛清暉園（嶺南四大名園），在大良老街吃民信老舖雙皮奶、順德魚生、煎釀鯪魚；傍晚城際回珠海站過關。']},
+{d:'12/10',w:'四',place:'氹仔路環',title:'氹仔・路環慢活收尾',iso:'2026-12-10',notes:[['','今晚一定住澳門（隔天中午的飛機），行程輕鬆，留體力整理行李。']],
+ tl:[['09:30','飯店早餐',''],
+ ['10:00','龍環葡韻住宅式博物館','五棟薄荷綠葡式住宅，週二至週日 10:00–19:00、免費；旁邊是濕地步道。','龍環葡韻住宅式博物館'],
+ ['11:30','官也街補手信・豬扒包','杏仁餅、蛋卷、肉乾；大利來記豬扒包。','大利來記'],
+ ['13:30','前往路環','計程車約 15 分鐘，或搭巴士。'],
+ ['14:00','路環市區','安德魯餅店葡撻（原店）、聖方濟各聖堂、路環碼頭海邊散步、找間咖啡店坐下來。','安德魯餅店 路環'],
+ ['15:30','可選：黑沙海灘','想看海、人少的話。'],
+ ['17:00','回飯店：SPA／泳池','12 月偏涼，先問飯店泳池是否有溫水。'],
+ ['19:00','路氹晚餐＋夜景','度假村餐廳；巴黎人鐵塔觀景台看路氹夜景。','澳門巴黎人'],
+ ['21:30','整理行李','線上報到、確認護照與剩下的現金。']]},
+{d:'12/11',w:'五',place:'返台',title:'悠閒返台',iso:'2026-12-11',notes:[],
+ tl:[['08:00','飯店早餐',''],
+ ['09:00','退房','行李多可請飯店叫車；路氹到機場約 10–15 分鐘。'],
+ ['09:30','抵達澳門機場報到','機場不大，09:30–10:00 到即可。'],
+ ['10:30','出境、免稅店','把剩下的 MOP 花掉（台灣換不回好匯率）。'],
+ ['12:00','NX612 起飛','13:40 抵達桃園。']]}];
+const CK=['護照（效期 6 個月以上）','台胞證（珠海、順德必備；有台胞證也可直接入境香港）','沒有台胞證的人：上網免費辦「台灣居民預辦入境登記」並用 A4 列印（有效 2 個月，可入境 2 次）','支付寶／微信綁台灣信用卡並完成實名','中港澳三地 eSIM 或漫遊','英式三孔轉接頭（澳門、香港）','可感應的信用卡或八達通（香港巴士）','少量澳門幣／港幣現金','外套（12 月約 14–21°C，晚上海邊有風）','昂坪360 纜車票預購','飯店訂房確認信截圖','旅遊平安險與不便險'];
+const TR=[['機場 → 路氹飯店','飯店接駁／計程車／輕軌','10–15 分','接駁免費'],['澳門 ↔ 香港口岸','港珠澳大橋金巴','40–50 分','24 小時，日間約 HK$65'],['香港口岸 ↔ 東涌','嶼巴 B6','約 15 分','HK$9.8'],['東涌 ↔ 昂坪','昂坪360 纜車','約 25 分','官網預購'],['氹仔碼頭 ↔ 上環','金光飛航','約 60 分','平日標準艙約 HK$192'],['關閘 ↔ 拱北','步行過關','15–30 分','需台胞證'],['珠海站 → 順德站','廣珠城際','約 40 分','需台胞證購票']];
+const INFO=[['證件','護照入境澳門免簽；香港用台胞證或預辦入境登記；珠海、順德只能用台胞證。'],['付款','澳門、香港刷卡普遍；珠海、順德幾乎只用支付寶／微信，留一點人民幣備用。'],['網路','珠海用台灣門號漫遊或中港澳 eSIM，Google 地圖、LINE 才能用；大陸導航改用高德。'],['天氣','12 月乾冷舒適，白天約 20°C、早晚 14°C 上下，洋蔥式穿搭＋好走的鞋。'],['電源','澳門、香港是英式三孔，記得帶轉接頭；珠海與台灣插頭相容。'],['緊急電話','澳門、香港：999。大陸：110 報警、120 救護。外交部急難救助：+886-800-085-095。']];
+const $=id=>document.getElementById(id);
+let cur=0;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function renderRoute(){$('route').innerHTML=DAYS.map((x,i)=>`<button class="stop${x.x?' x':''}${i===cur?' on':''}" data-i="${i}" aria-current="${i===cur}"><div class="dot">${i+1}</div><b>${x.d}</b><span>${x.place}</span></button>`).join('')}
+function renderDay(){const x=DAYS[cur];
+ const notes=x.notes.map(n=>`<div class="note ${n[0]}">${esc(n[1])}</div>`).join('');
+ const tl=x.tl.map(t=>`<li><time>${t[0]}</time><div><h3>${esc(t[1])}</h3>${t[2]?`<p>${esc(t[2])}</p>`:''}${t[3]?`<p><a href="${(t[4]?A:G)(t[3])}" target="_blank" rel="noopener">${t[4]?'高德地圖':'地圖'}：${esc(t[3])} ↗</a></p>`:''}</div></li>`).join('');
+ const alt=x.alt?`<details class="alt"><summary>替代方案：${esc(x.alt[0])}</summary><p>${esc(x.alt[1])}</p></details>`:'';
+ $('day').innerHTML=`<div class="day-head"><h2>Day ${cur+1}・${x.d}（${x.w}）${esc(x.title)}</h2><span class="lnk">${x.x?'跨境一日遊・晚上回澳門':'住澳門'}</span></div>${notes}<ol class="tl">${tl}</ol>${alt}<div class="nav"><button class="btn" id="pv" ${cur?'':'disabled'}>← 前一天</button><button class="btn" id="nx" ${cur<5?'':'disabled'}>下一天 →</button></div>`;
+ $('pv').onclick=()=>go(cur-1);$('nx').onclick=()=>go(cur+1);}
+function go(i,noHash){cur=Math.max(0,Math.min(5,i));renderRoute();renderDay();if(!noHash){try{history.replaceState(null,'','#day'+(cur+1))}catch(e){}}}
+$('route').addEventListener('click',e=>{const b=e.target.closest('.stop');if(b){go(+b.dataset.i);$('day').scrollIntoView({behavior:'smooth',block:'start'})}});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+let done={};try{done=JSON.parse(store.get('mo-ck')||'{}')}catch(e){}
+function renderCk(){$('ck').innerHTML=CK.map((c,i)=>`<li><label><input type="checkbox" id="ck${i}" data-i="${i}" ${done[i]?'checked':''}><span class="${done[i]?'done':''}">${esc(c)}</span></label></li>`).join('')}
+$('ck').addEventListener('change',e=>{const i=e.target.dataset.i;done[i]=e.target.checked;store.set('mo-ck',JSON.stringify(done));renderCk()});
+$('ckreset').onclick=()=>{done={};store.set('mo-ck','{}');renderCk()};
+$('tr').innerHTML=TR.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="nw">${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+$('info').innerHTML=INFO.map(r=>`<div><h3>${r[0]}</h3><p>${esc(r[1])}</p></div>`).join('');
+const ht=$('ht');ht.value=store.get('mo-hotel')||'';ht.addEventListener('change',()=>{store.set('mo-hotel',ht.value.trim());$('htmsg').textContent=ht.value.trim()?'已記住':''});
+const now=new Date(),start=new Date('2026-12-06T14:40:00+08:00'),end=new Date('2026-12-11T13:40:00+08:00');
+const today=new Date(now.getTime()+8*3600e3).toISOString().slice(0,10);
+let ti=DAYS.findIndex(x=>x.iso===today);
+if(now<start){const dd=Math.ceil((start-now)/864e5);$('cd').textContent=`還有 ${dd} 天出發`}else if(now<=end){$('cd').textContent=`旅程中・Day ${ti+1}`}else{$('cd').textContent='旅程結束，歡迎回家'}
+const fromHash=()=>{const m=/^#day([1-6])$/.exec(location.hash);if(m){go(+m[1]-1,true);return true}return false};
+if(!fromHash())go(ti>=0?ti:0,true);
+renderCk();
+window.addEventListener('hashchange',fromHash);
+if('serviceWorker' in navigator&&window.top===window.self){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+}
+</script>
+</body>
+</html>
